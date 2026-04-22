@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>אימון 15 דקות | בית</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#1DC8BB;--teal-dark:#15a99d;--teal-glow:rgba(29,200,187,0.25);
+  --purple:#9B7FD4;--purple-soft:#EDE7F6;
+  --bg:#0F1923;--surface:#182230;--surface2:#1e2d3d;
+  --border:rgba(255,255,255,0.07);
+  --text:#EEF2F7;--text-mid:#8FA3B8;--text-dim:#4a6075;
+  --red:#FF4E6A;--yellow:#FFD166;--green:#06D6A0;
+  --radius:20px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+/* SCREENS */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .4s ease;overflow:hidden}
+.screen.active{opacity:1;pointer-events:all}
+
+/* HOME */
+#home{background:linear-gradient(160deg,#0a2540 0%,#0f1923 50%,#1a0a2e 100%);align-items:center;justify-content:center;text-align:center;padding:2rem;gap:0}
+.home-glow{position:absolute;width:500px;height:500px;background:radial-gradient(circle,var(--teal-glow) 0%,transparent 70%);top:-100px;left:50%;transform:translateX(-50%);pointer-events:none}
+.home-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(29,200,187,.12);border:1px solid rgba(29,200,187,.3);color:var(--teal);font-size:.78rem;font-weight:700;padding:.35rem 1rem;border-radius:50px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.5rem;position:relative}
+.home-title{font-size:clamp(2rem,8vw,3rem);font-weight:900;line-height:1.1;margin-bottom:.8rem;background:linear-gradient(135deg,#fff 0%,var(--teal) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative}
+.home-sub{color:var(--text-mid);font-size:1rem;line-height:1.6;margin-bottom:2.5rem;position:relative}
+.stats-row{display:flex;gap:1rem;margin-bottom:2.5rem;position:relative}
+.stat-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1rem .5rem;text-align:center}
+.stat-num{font-size:1.6rem;font-weight:900;color:var(--teal);display:block}
+.stat-lbl{font-size:.72rem;color:var(--text-mid);font-weight:500}
+.btn-start{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;border:none;border-radius:50px;font-family:'Heebo',sans-serif;font-size:1.05rem;font-weight:700;padding:1rem 3rem;cursor:pointer;box-shadow:0 8px 30px var(--teal-glow);transition:transform .15s,box-shadow .15s;position:relative;width:100%;max-width:320px;letter-spacing:.03em}
+.btn-start:active{transform:scale(.97)}
+.exercises-preview{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;margin-top:2rem;position:relative}
+.ex-pill{background:var(--surface);border:1px solid var(--border);color:var(--text-mid);font-size:.75rem;font-weight:600;padding:.3rem .8rem;border-radius:50px}
+
+/* EXERCISE SCREEN */
+#exercise{background:var(--bg)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem .5rem;flex-shrink:0}
+.btn-back{background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Heebo',sans-serif;font-size:.82rem;font-weight:600;padding:.5rem 1rem;border-radius:50px;cursor:pointer}
+.step-indicator{font-size:.82rem;color:var(--text-mid);font-weight:600}
+.overall-progress{padding:0 1.2rem;margin-bottom:.6rem;flex-shrink:0}
+.overall-bar-bg{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.overall-bar-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--purple));border-radius:2px;transition:width .5s ease}
+
+/* IMAGE */
+.image-area{position:relative;flex-shrink:0;height:clamp(240px,48vh,430px);overflow:hidden;border-radius:0 0 24px 24px;background:#0b1118}
+.exercise-img{width:100%;height:100%;object-fit:contain;object-position:center center;display:block;transition:opacity .5s ease}
+.img-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(15,25,35,0) 25%,rgba(15,25,35,.65) 70%,var(--bg) 100%)}
+.img-tag{position:absolute;top:1rem;right:1rem;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:.72rem;font-weight:700;padding:.3rem .8rem;border-radius:50px;letter-spacing:.06em;text-transform:uppercase}
+.muscle-tag{position:absolute;bottom:1.2rem;right:1rem;display:flex;align-items:center;gap:.4rem;background:rgba(255,78,106,.2);border:1px solid rgba(255,78,106,.4);color:#FF9EB0;font-size:.72rem;font-weight:700;padding:.3rem .8rem;border-radius:50px}
+.muscle-dot{width:6px;height:6px;background:var(--red);border-radius:50%}
+
+/* CONTENT */
+.content-area{flex:1;overflow-y:auto;padding:.8rem 1.2rem 1rem;display:flex;flex-direction:column;gap:.8rem}
+.ex-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem}
+.ex-title{font-size:clamp(1.4rem,5vw,1.8rem);font-weight:900;line-height:1.15}
+.ex-number{background:var(--surface);border:1px solid var(--border);color:var(--text-mid);font-size:.78rem;font-weight:700;padding:.35rem .8rem;border-radius:50px;white-space:nowrap;align-self:flex-start;margin-top:.3rem}
+.ex-desc{color:var(--text-mid);font-size:.88rem;line-height:1.6}
+.tip-box{background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.2);border-radius:14px;padding:.75rem 1rem;font-size:.82rem;color:#FFE599;line-height:1.5}
+
+/* TIMER CARD */
+.timer-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1rem;text-align:center}
+.timer-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem}
+.timer-phase-lbl{font-size:.78rem;font-weight:700;color:var(--text-mid);letter-spacing:.08em;text-transform:uppercase}
+.sets-badge{background:rgba(29,200,187,.12);border:1px solid rgba(29,200,187,.25);color:var(--teal);font-size:.75rem;font-weight:700;padding:.25rem .7rem;border-radius:50px}
+.ring-wrap{position:relative;width:130px;height:130px;margin:0 auto .8rem}
+.ring-svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring-bg-c{stroke:var(--surface2);stroke-width:9;fill:none}
+.ring-fill-c{stroke:var(--teal);stroke-width:9;fill:none;stroke-linecap:round;stroke-dasharray:339;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear,stroke .4s ease}
+.ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem}
+.ring-time{font-size:2rem;font-weight:900;font-variant-numeric:tabular-nums;color:var(--text);letter-spacing:-1px;line-height:1;transition:color .3s}
+.ring-time.warn{color:var(--red);animation:pulse .5s alternate infinite}
+@keyframes pulse{to{transform:scale(1.08)}}
+.ring-label{font-size:.62rem;font-weight:700;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase}
+.timer-btns{display:flex;gap:.6rem;justify-content:center}
+.btn-ctrl{border:none;border-radius:50px;font-family:'Heebo',sans-serif;font-weight:700;cursor:pointer;font-size:.88rem;padding:.65rem 1.5rem;transition:transform .13s}
+.btn-ctrl:active{transform:scale(.95)}
+.btn-play{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;box-shadow:0 4px 18px var(--teal-glow);flex:2}
+.btn-reset{background:var(--surface2);color:var(--text-mid);border:1px solid var(--border);flex:1}
+.next-area{padding:0 1.2rem 1.2rem;flex-shrink:0}
+.btn-next{width:100%;background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;border:none;border-radius:var(--radius);font-family:'Heebo',sans-serif;font-size:1rem;font-weight:700;padding:.9rem;cursor:pointer;box-shadow:0 6px 24px var(--teal-glow);transition:transform .13s;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.btn-next:active{transform:scale(.98)}
+
+/* REST SCREEN */
+#rest{background:linear-gradient(160deg,#0a1f35 0%,#120a2e 100%);align-items:center;justify-content:center;text-align:center;padding:2rem 1.5rem;gap:1.5rem}
+.rest-title{font-size:1.8rem;font-weight:900;color:var(--text)}
+.rest-sub{color:var(--text-mid);font-size:.95rem}
+.rest-next-preview{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1rem 1.4rem;font-size:.9rem;color:var(--text-mid);font-weight:500}
+.rest-next-preview strong{color:var(--teal);display:block;font-size:1.05rem;margin-bottom:.2rem}
+.rest-ring-wrap{position:relative;width:160px;height:160px}
+.rest-ring-fill{stroke:var(--purple);stroke-width:10;fill:none;stroke-linecap:round;stroke-dasharray:408;stroke-dashoffset:0;transition:stroke-dashoffset 1s linear}
+.rest-ring-bg{stroke:var(--surface2);stroke-width:10;fill:none}
+.rest-ring-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rest-time{font-size:2.8rem;font-weight:900;color:var(--purple);line-height:1;font-variant-numeric:tabular-nums}
+.rest-label{font-size:.65rem;font-weight:700;color:var(--text-dim);letter-spacing:.1em;text-transform:uppercase;margin-top:.2rem}
+.btn-skip{background:transparent;border:1px solid var(--border);color:var(--text-mid);font-family:'Heebo',sans-serif;font-size:.88rem;font-weight:600;padding:.7rem 2rem;border-radius:50px;cursor:pointer;transition:border-color .2s,color .2s}
+
+/* FINISH */
+#finish{background:linear-gradient(160deg,#051a2e 0%,#0a0f1a 60%,#1a0a2e 100%);align-items:center;justify-content:center;text-align:center;padding:2rem 1.5rem;gap:1.2rem}
+.finish-emoji{font-size:5rem;animation:bounce .7s cubic-bezier(.36,.07,.19,.97) forwards}
+@keyframes bounce{0%{transform:scale(0);opacity:0}60%{transform:scale(1.2);opacity:1}100%{transform:scale(1)}}
+.finish-title{font-size:2rem;font-weight:900}
+.finish-sub{color:var(--text-mid);font-size:.95rem;line-height:1.7}
+.finish-stats{display:flex;gap:1rem;justify-content:center}
+.finish-stat{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1rem 1.5rem;text-align:center}
+.finish-stat-num{font-size:1.8rem;font-weight:900;color:var(--teal);display:block}
+.finish-stat-lbl{font-size:.72rem;color:var(--text-mid)}
+.confetti-strip{display:flex;gap:.4rem;justify-content:center;font-size:1.5rem}
+.btn-restart{background:linear-gradient(135deg,var(--teal),var(--teal-dark));color:#fff;border:none;border-radius:50px;font-family:'Heebo',sans-serif;font-size:1rem;font-weight:700;padding:.9rem 2.5rem;cursor:pointer;box-shadow:0 6px 24px var(--teal-glow);width:100%;max-width:300px;transition:transform .13s}
+.btn-restart:active{transform:scale(.97)}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen active" id="home">
+  <div class="home-glow"></div>
+  <div class="home-badge">אימון ביתי</div>
+  <h1 class="home-title">אימון 15 דקות<br>ביום</h1>
+  <p class="home-sub">ללא ציוד · מושלם למתחילות<br>חימום + 5 תרגילים + שחרור</p>
+  <div class="stats-row">
+    <div class="stat-card"><span class="stat-num">15</span><span class="stat-lbl">דקות</span></div>
+    <div class="stat-card"><span class="stat-num">7</span><span class="stat-lbl">שלבים</span></div>
+    <div class="stat-card"><span class="stat-num">0</span><span class="stat-lbl">ציוד</span></div>
+  </div>
+  <button class="btn-start" onclick="startWorkout()">▶ &nbsp;התחלת אימון</button>
+  <div class="exercises-preview">
+    <span class="ex-pill">חימום</span><span class="ex-pill">סקוואט</span>
+    <span class="ex-pill">שכיבות קיר</span><span class="ex-pill">לאנג׳ים</span>
+    <span class="ex-pill">פלאנק</span><span class="ex-pill">שחרור</span>
+  </div>
+</div>
+
+<!-- EXERCISE -->
+<div class="screen" id="exercise">
+  <div class="topbar">
+    <button class="btn-back" onclick="goHome()">← יציאה</button>
+    <div class="step-indicator" id="stepIndicator">1 / 6</div>
+  </div>
+  <div class="overall-progress">
+    <div class="overall-bar-bg"><div class="overall-bar-fill" id="overallBar" style="width:0%"></div></div>
+  </div>
+  <div class="image-area">
+    <img class="exercise-img" id="exImg" src="" alt="תרגיל">
+    <div class="img-overlay"></div>
+    <div class="img-tag" id="exTag">חימום</div>
+    <div class="muscle-tag"><span class="muscle-dot"></span><span id="muscleText">כל הגוף</span></div>
+  </div>
+  <div class="content-area">
+    <div class="ex-title-row">
+      <h2 class="ex-title" id="exTitle">חימום</h2>
+      <div class="ex-number" id="exNumber">שלב 1</div>
+    </div>
+    <p class="ex-desc" id="exDesc"></p>
+    <div class="tip-box" id="tipBox"></div>
+    <div class="timer-card">
+      <div class="timer-top">
+        <div class="timer-phase-lbl" id="timerPhaseLabel">עבודה</div>
+        <div class="sets-badge" id="setsBadge">סט 1 / 3</div>
+      </div>
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 120 120">
+          <circle class="ring-bg-c" cx="60" cy="60" r="54"/>
+          <circle class="ring-fill-c" id="ringFill" cx="60" cy="60" r="54"/>
+        </svg>
+        <div class="ring-inner">
+          <div class="ring-time" id="ringTime">0:30</div>
+          <div class="ring-label" id="ringLabel">נותר</div>
+        </div>
+      </div>
+      <div class="timer-btns">
+        <button class="btn-ctrl btn-reset" onclick="resetExTimer()">↺</button>
+        <button class="btn-ctrl btn-play" id="playBtn" onclick="toggleExTimer()">▶ התחלה</button>
+      </div>
+    </div>
+  </div>
+  <div class="next-area">
+    <button class="btn-next" id="nextBtn" onclick="nextStep()">
+      <span id="nextBtnText">סיום תרגיל ←</span>
+    </button>
+  </div>
+</div>
+
+<!-- REST -->
+<div class="screen" id="rest">
+  <div class="rest-title">זמן מנוחה</div>
+  <p class="rest-sub">קחי נשימה עמוקה - מגיע לך!</p>
+  <div class="rest-ring-wrap">
+    <svg style="position:absolute;inset:0;transform:rotate(-90deg)" viewBox="0 0 140 140" width="160" height="160">
+      <circle class="rest-ring-bg" cx="70" cy="70" r="65"/>
+      <circle class="rest-ring-fill" id="restRingFill" cx="70" cy="70" r="65"/>
+    </svg>
+    <div class="rest-ring-inner">
+      <div class="rest-time" id="restTime">0:30</div>
+      <div class="rest-label">שניות מנוחה</div>
+    </div>
+  </div>
+  <div class="rest-next-preview">
+    <strong id="nextExName">סקוואט</strong>
+    הכיני את עצמך לתרגיל הבא
+  </div>
+  <button class="btn-skip" onclick="skipRest()">דלג על מנוחה →</button>
+</div>
+
+<!-- FINISH -->
+<div class="screen" id="finish">
+  <div class="confetti-strip">🎉 🏆 ✓</div>
+  <div class="finish-emoji">🏆</div>
+  <div class="finish-title">כל הכבוד!<br>סיימת את האימון</div>
+  <p class="finish-sub">התמידי 3-4 פעמים בשבוע<br>הגוף יגיד תודה</p>
+  <div class="finish-stats">
+    <div class="finish-stat"><span class="finish-stat-num">15</span><span class="finish-stat-lbl">דקות</span></div>
+    <div class="finish-stat"><span class="finish-stat-num">5</span><span class="finish-stat-lbl">תרגילים</span></div>
+    <div class="finish-stat"><span class="finish-stat-num">✓</span><span class="finish-stat-lbl">כוח</span></div>
+  </div>  <button class="btn-restart" onclick="restartWorkout()">אימון נוסף</button>
+</div>
+
+<script>
+/* IMAGE DATA */
+const IMGS = {
+  warmup: "Warmup.png",
+  squat: "Squat.png",
+  wall_pushup: "Wall pushup.png",
+  lunge: "Lunge.png",
+  plank: "Plank.png",
+  stretch: "Stretch.png"
+};
+
+/* EXERCISE DATA */
+const EXERCISES = [
+  { name:"חימום דינמי", tag:"חימום", muscle:"כל הגוף",
+    desc:"הליכה במקום · סיבובי ידיים · סיבובי אגן · ג׳אמפינג ג׳קס קלים",
+    tip:"טיפ: הזיזי את כל הגוף בעדינות - מכינים את השרירים ומונעים פציעות!",
+    workSecs:30, sets:4, restAfter:0,  imgKey:"warmup" },
+  { name:"סקוואט בסיסי", tag:"רגליים", muscle:"ירכיים · ישבן · שוקיים",
+    desc:"רגליים ברוחב הכתפיים, שלחי ישבן אחורה ולמטה, גב ישר, ברכיים מעל הבהונות.",
+    tip:"טיפ: דמייני שאת יושבת על כיסא - הברכיים לא חורגות מעבר לבהונות!",
+    workSecs:30, sets:3, restAfter:30, imgKey:"squat" },
+  { name:"שכיבות סמיכה על הקיר", tag:"חזה", muscle:"חזה · כתפיים · טרייספס",
+    desc:"ידיים על הקיר ברוחב הכתפיים, גוף ישר. כופפי מרפקים לאט וחזרי.",
+    tip:"טיפ: ככל שהרגליים רחוקות יותר מהקיר - קשה יותר. מתחילות - קרוב לקיר!",
+    workSecs:30, sets:3, restAfter:30, imgKey:"wall_pushup" },
+  { name:"לאנג׳ים קדימה", tag:"ירכיים", muscle:"ירכיים קדמיות · ישבן · תוך הירך",
+    desc:"צעד גדול קדימה, הורידי ברך אחורית לכיוון הרצפה. החליפי בין הצדדים.",
+    tip:"טיפ: הברך הקדמית ישר מעל הקרסול. עמוד שדרה זקוף לאורך כל התנועה.",
+    workSecs:30, sets:3, restAfter:30, imgKey:"lunge" },
+  { name:"פלאנק", tag:"ליבה", muscle:"ליבה · בטן · גב תחתון · כתפיים",
+    desc:"על אמות הידיים, גוף ישר מהראש לרגליים. אפשר על הברכיים למתחילות.",
+    tip:"טיפ: בטן מכונסת כל הזמן! אל תרימי את הישבן ואל תשפילי אותו.",
+    workSecs:30, sets:3, restAfter:30, imgKey:"plank" },
+  { name:"מתיחות ושחרור", tag:"שחרור", muscle:"כל הגוף - שחרור",
+    desc:"מתיחת צד 30 שניות כפול 2 · מתיחת ירך קדמית · 4 נשימות עמוקות.",
+    tip:"טיפ: שחרור חשוב לא פחות מהאימון עצמו - מפחית כאבי שרירים מאוחרים יותר!",
+    workSecs:30, sets:4, restAfter:0,  imgKey:"stretch" }
+];
+
+const CIRC_EX   = 339;
+const CIRC_REST = 408;
+
+let currentStep=0, currentSet=1;
+let exRunning=false, exInterval=null, exRemaining=0;
+let restRunning=false, restInterval=null, restRemaining=0;
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function startWorkout(){currentStep=0;currentSet=1;loadExercise();showScreen("exercise");}
+function goHome(){clearInterval(exInterval);clearInterval(restInterval);exRunning=false;restRunning=false;showScreen("home");}
+function restartWorkout(){startWorkout();}
+
+function loadExercise(){
+  const ex=EXERCISES[currentStep];
+  currentSet=1;
+  document.getElementById("exTitle").textContent=ex.name;
+  document.getElementById("exTag").textContent=ex.tag;
+  document.getElementById("muscleText").textContent=ex.muscle;
+  document.getElementById("exDesc").textContent=ex.desc;
+  document.getElementById("tipBox").textContent=ex.tip;
+  document.getElementById("exNumber").textContent="שלב "+(currentStep+1);
+  document.getElementById("stepIndicator").textContent=(currentStep+1)+" / "+EXERCISES.length;
+  const img=document.getElementById("exImg");
+  img.style.opacity=0;
+  img.src=IMGS[ex.imgKey];
+  img.onload=()=>{img.style.opacity=1;};
+  document.getElementById("overallBar").style.width=(currentStep/EXERCISES.length*100).toFixed(0)+"%";
+  const isLast=currentStep===EXERCISES.length-1;
+  document.getElementById("nextBtnText").textContent=isLast?"סיום אימון":"סיום תרגיל ←";
+  clearInterval(exInterval);exRunning=false;exRemaining=ex.workSecs;
+  document.getElementById("playBtn").textContent="▶ התחלה";
+  document.getElementById("timerPhaseLabel").textContent="עבודה";
+  document.getElementById("ringLabel").textContent="נותר";
+  updateSetsBadge();updateRingDisplay();
+}
+
+function updateSetsBadge(){
+  document.getElementById("setsBadge").textContent="סט "+currentSet+" / "+EXERCISES[currentStep].sets;
+}
+
+function toggleExTimer(){
+  if(exRunning){clearInterval(exInterval);exRunning=false;document.getElementById("playBtn").textContent="▶ המשך";}
+  else{exRunning=true;document.getElementById("playBtn").textContent="⏸ עצור";exInterval=setInterval(exTick,1000);}
+}
+
+function exTick(){
+  if(exRemaining>0){exRemaining--;updateRingDisplay();}
+  else{
+    clearInterval(exInterval);exRunning=false;playBeep();
+    const ex=EXERCISES[currentStep];
+    if(currentSet<ex.sets){
+      currentSet++;updateSetsBadge();exRemaining=ex.workSecs;
+      document.getElementById("playBtn").textContent="▶ סט "+currentSet;
+      document.getElementById("timerPhaseLabel").textContent="סט "+currentSet+" מתוך "+ex.sets;
+      updateRingDisplay();
+    } else {
+      document.getElementById("timerPhaseLabel").textContent="הושלם!";
+      document.getElementById("ringLabel").textContent="סיום!";
+      document.getElementById("playBtn").textContent="הושלם";
+    }
+  }
+}
+
+function resetExTimer(){
+  clearInterval(exInterval);exRunning=false;currentSet=1;
+  exRemaining=EXERCISES[currentStep].workSecs;
+  document.getElementById("playBtn").textContent="▶ התחלה";
+  document.getElementById("timerPhaseLabel").textContent="עבודה";
+  document.getElementById("ringLabel").textContent="נותר";
+  const r=document.getElementById("ringFill");r.style.strokeDashoffset=0;r.style.stroke="var(--teal)";
+  updateSetsBadge();updateRingDisplay();
+}
+
+function updateRingDisplay(){
+  const ex=EXERCISES[currentStep];
+  const ratio=exRemaining/ex.workSecs;
+  document.getElementById("ringFill").style.strokeDashoffset=CIRC_EX*(1-ratio);
+  const t=document.getElementById("ringTime");
+  t.textContent=fmt(exRemaining);
+  t.className="ring-time"+(exRemaining<=5&&exRemaining>0?" warn":"");
+}
+
+function nextStep(){
+  clearInterval(exInterval);exRunning=false;
+  const ex=EXERCISES[currentStep];
+  const isLast=currentStep===EXERCISES.length-1;
+  if(isLast){document.getElementById("overallBar").style.width="100%";showScreen("finish");return;}
+  const nextEx=EXERCISES[currentStep+1];
+  if(ex.restAfter>0){
+    document.getElementById("nextExName").textContent=nextEx.name;
+    startRest(ex.restAfter);showScreen("rest");
+  } else {currentStep++;loadExercise();}
+}
+
+function startRest(secs){
+  clearInterval(restInterval);restRemaining=secs;updateRestDisplay();
+  restRunning=true;restInterval=setInterval(restTick,1000);
+}
+function restTick(){
+  if(restRemaining>0){restRemaining--;updateRestDisplay();}
+  else{clearInterval(restInterval);restRunning=false;playBeep();currentStep++;loadExercise();showScreen("exercise");}
+}
+function skipRest(){clearInterval(restInterval);restRunning=false;currentStep++;loadExercise();showScreen("exercise");}
+function updateRestDisplay(){
+  const ratio=restRemaining/30;
+  document.getElementById("restRingFill").style.strokeDashoffset=CIRC_REST*(1-ratio);
+  document.getElementById("restTime").textContent=fmt(restRemaining);
+}
+
+function fmt(s){return Math.floor(s/60)+":"+(s%60).toString().padStart(2,"0");}
+
+function playBeep(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const start=ctx.currentTime;
+    const duration=1;
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.type="sine";
+    osc.frequency.setValueAtTime(880,start);
+    osc.frequency.setValueAtTime(660,start+.5);
+    gain.gain.setValueAtTime(0.001,start);
+    gain.gain.exponentialRampToValueAtTime(.22,start+.03);
+    gain.gain.setValueAtTime(.22,start+.88);
+    gain.gain.exponentialRampToValueAtTime(.001,start+duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(start);
+    osc.stop(start+duration);
+  }catch(e){}
+}
+</script>
+</body>
+</html>
